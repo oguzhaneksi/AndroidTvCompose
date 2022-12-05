@@ -4,12 +4,14 @@ import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.LinearOutSlowInEasing
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.tween
+import androidx.compose.animation.expandHorizontally
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.focusable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.selection.selectable
 import androidx.compose.material.Icon
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
@@ -23,6 +25,8 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
+import androidx.navigation.NavDestination.Companion.hierarchy
+import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.sample.androidtvcompose.data.model.MenuItem
 import com.sample.androidtvcompose.data.tempdata.SampleData
@@ -44,8 +48,9 @@ fun SideMenuComponent(
     }
     val animatedWidth by animateDpAsState(
         targetValue = menuWidth,
-        animationSpec = tween(durationMillis = 500, easing = LinearOutSlowInEasing)
+        animationSpec = tween(durationMillis = 500)
     )
+    val navBackStackEntry by navController.currentBackStackEntryAsState()
     Box(
         modifier = modifier
             .fillMaxHeight()
@@ -63,9 +68,13 @@ fun SideMenuComponent(
             itemsIndexed(
                 items = menuItems
             ) { index, item ->
+                val selected = navBackStackEntry?.destination?.hierarchy?.any {
+                    it.route == item.route
+                } == true
                 MenuItem(
                     item = item,
                     expanded = expanded,
+                    selected = selected,
                     onFocusChanged = onFocusChanged,
                     onItemClick = {
                         navController.navigate(Screen.MenuPage(item.route).createPath(
@@ -85,6 +94,7 @@ fun MenuItem(
     modifier: Modifier = Modifier,
     item: MenuItem,
     expanded: Boolean,
+    selected: Boolean,
     onFocusChanged: (FocusState) -> Unit,
     onItemClick: () -> Unit
 ) {
@@ -94,9 +104,13 @@ fun MenuItem(
     Row(
         modifier = modifier
             .wrapContentWidth()
-            .clickable(enabled = focused) {
-                onItemClick()
-            }
+            .selectable(
+                selected = selected,
+                enabled = focused,
+                onClick = {
+                    onItemClick()
+                }
+            )
             .onFocusChanged {
                 focused = it.isFocused
                 onFocusChanged(it)
@@ -108,14 +122,15 @@ fun MenuItem(
         Icon(
             painter = painterResource(id = item.icon),
             contentDescription = item.title,
-            tint = if (focused) Color.Red else Color.White
+            tint = if (focused || selected) Color.Red else Color.White
         )
         AnimatedVisibility(
-            visible = expanded
+            visible = expanded,
+            enter = expandHorizontally(animationSpec = tween(durationMillis = 500))
         ) {
             Text(
                 text = item.title,
-                color = if (focused) Color.Red else Color.White,
+                color = if (focused || selected) Color.Red else Color.White,
                 style = MaterialTheme.typography.h5
             )
         }
