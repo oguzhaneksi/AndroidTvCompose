@@ -16,11 +16,11 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 
 @Composable
-fun GridBox(
+fun CardComponent(
     modifier: Modifier = Modifier,
     focusRequester: FocusRequester = FocusRequester(),
     text: String,
-    onFocusChanged: (Boolean) -> Unit
+    onFocusChanged: (FocusState) -> Unit
 ) {
     var focused by remember {
         mutableStateOf(false)
@@ -33,7 +33,7 @@ fun GridBox(
             .focusRequester(focusRequester)
             .onFocusChanged {
                 focused = it.isFocused
-                onFocusChanged(it.isFocused)
+                onFocusChanged(it)
             }
             .focusable()
     ) {
@@ -48,8 +48,8 @@ fun GridBox(
 
 @Composable
 @Preview
-fun GridBoxPreview() {
-    GridBox(
+fun CardComponentPreview() {
+    CardComponent(
         text = "1",
         onFocusChanged = {}
     )

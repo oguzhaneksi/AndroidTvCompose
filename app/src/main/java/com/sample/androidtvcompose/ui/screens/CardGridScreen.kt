@@ -13,7 +13,7 @@ import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.launch
 
 @Composable
-fun ContentScreen(
+fun CardGridScreen(
     items: List<Int> = emptyList()
 ) {
     val lazyGridState = rememberLazyGridState()
@@ -28,10 +28,10 @@ fun ContentScreen(
         itemsIndexed(
             items = items
         ) { index, item->
-            GridBox(
+            CardComponent(
                 text = item.toString(),
-                onFocusChanged = { focused ->
-                    if (focused) {
+                onFocusChanged = { focusState ->
+                    if (focusState.isFocused) {
                         scope.launch {
                             val visibleItemsInfo = lazyGridState.layoutInfo.visibleItemsInfo
                             val visibleSet = visibleItemsInfo.map { it.index }.toSet()

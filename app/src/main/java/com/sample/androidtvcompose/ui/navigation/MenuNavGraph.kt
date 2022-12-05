@@ -1,13 +1,13 @@
 package com.sample.androidtvcompose.ui.navigation
 
-import androidx.compose.runtime.Composable
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavType
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
 import androidx.navigation.navigation
 import com.sample.androidtvcompose.data.model.enums.DisplayType
-import com.sample.androidtvcompose.ui.screens.ContentScreen
+import com.sample.androidtvcompose.ui.screens.CardGridScreen
+import com.sample.androidtvcompose.ui.screens.CardRowsScreen
 
 
 fun NavGraphBuilder.menuNavGraph(
@@ -33,13 +33,17 @@ fun NavGraphBuilder.menuNavGraph(
                 }
             )
         ) {
-            val items = (1..40).toList()
+
             when (displayType) {
                 DisplayType.CardRows -> {
-                    ContentScreen(items = items)
+                    val items = (1..10).map {
+                        "Row $it" to (1..20).toList()
+                    }
+                    CardRowsScreen(items = items)
                 }
                 DisplayType.CardGrid -> {
-                    ContentScreen(items = items)
+                    val items = (1..40).toList()
+                    CardGridScreen(items = items)
                 }
             }
         }
