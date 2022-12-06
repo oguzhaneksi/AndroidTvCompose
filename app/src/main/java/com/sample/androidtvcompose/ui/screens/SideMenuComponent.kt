@@ -32,6 +32,8 @@ import com.sample.androidtvcompose.data.model.MenuItem
 import com.sample.androidtvcompose.data.tempdata.SampleData
 import com.sample.androidtvcompose.ui.navigation.Screen
 import com.sample.androidtvcompose.ui.navigation.createPath
+import com.sample.androidtvcompose.ui.theme.MenuWidthCollapsed
+import com.sample.androidtvcompose.ui.theme.MenuWidthExpanded
 
 @Composable
 fun SideMenuComponent(
@@ -46,7 +48,7 @@ fun SideMenuComponent(
     var expanded by remember {
         mutableStateOf(false)
     }
-    val menuWidth = if (expanded) 160.dp else 80.dp
+    val menuWidth = if (expanded) MenuWidthExpanded else MenuWidthCollapsed
     val onFocusChanged: (FocusState) -> Unit = {
         expanded = it.hasFocus
     }

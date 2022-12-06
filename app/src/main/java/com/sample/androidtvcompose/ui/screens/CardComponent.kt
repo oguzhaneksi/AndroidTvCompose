@@ -3,6 +3,7 @@ package com.sample.androidtvcompose.ui.screens
 import androidx.compose.foundation.background
 import androidx.compose.foundation.focusable
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.width
 import androidx.compose.material.MaterialTheme
@@ -29,7 +30,7 @@ fun CardComponent(
         modifier = modifier
             .background(color = Color.White)
             .width(160.dp)
-            .height(90.dp)
+            .aspectRatio(16/9f)
             .focusRequester(focusRequester)
             .onFocusChanged {
                 focused = it.isFocused

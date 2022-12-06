@@ -39,11 +39,17 @@ fun NavGraphBuilder.menuNavGraph(
                     val items = (1..10).map {
                         "Row $it" to (1..20).toList()
                     }
-                    CardRowsScreen(items = items)
+                    val sliders = (1..10).toList()
+                    CardRowsScreen(
+                        items = items,
+                        sliders = sliders
+                    )
                 }
                 DisplayType.CardGrid -> {
                     val items = (1..40).toList()
-                    CardGridScreen(items = items)
+                    CardGridScreen(
+                        items = items
+                    )
                 }
             }
         }
