@@ -36,7 +36,11 @@ class MainActivity : ComponentActivity() {
                     ) {
                         SideMenuComponent(
                             menuItems = pages,
-                            navController = navController
+                            navController = navController,
+                            backgroundColor = Color.Gray,
+                            selectedIconColor = Color.Red,
+                            unselectedIconColor = Color.Black,
+                            focusedIconColor = Color.Red
                         )
                         Navigation(
                             navHostController = navController,

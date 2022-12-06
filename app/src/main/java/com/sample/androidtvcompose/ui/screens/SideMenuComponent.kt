@@ -1,12 +1,10 @@
 package com.sample.androidtvcompose.ui.screens
 
 import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.core.LinearOutSlowInEasing
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.expandHorizontally
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.focusable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -18,7 +16,9 @@ import androidx.compose.material.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.FocusState
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
@@ -36,6 +36,10 @@ import com.sample.androidtvcompose.ui.navigation.createPath
 @Composable
 fun SideMenuComponent(
     modifier: Modifier = Modifier,
+    backgroundColor: Color,
+    selectedIconColor: Color,
+    unselectedIconColor: Color,
+    focusedIconColor: Color,
     navController: NavController,
     menuItems: List<MenuItem>
 ) {
@@ -50,12 +54,13 @@ fun SideMenuComponent(
         targetValue = menuWidth,
         animationSpec = tween(durationMillis = 500)
     )
+    val focusRequester = FocusRequester()
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     Box(
         modifier = modifier
             .fillMaxHeight()
             .width(animatedWidth)
-            .background(Color.Gray)
+            .background(backgroundColor)
     ) {
         LazyColumn(
             modifier = Modifier
@@ -71,10 +76,22 @@ fun SideMenuComponent(
                 val selected = navBackStackEntry?.destination?.hierarchy?.any {
                     it.route == item.route
                 } == true
+                if (index == 0) {
+                    DisposableEffect(
+                        key1 = Unit,
+                    ) {
+                        focusRequester.requestFocus()
+                        onDispose {  }
+                    }
+                }
                 MenuItem(
                     item = item,
                     expanded = expanded,
                     selected = selected,
+                    selectedItemColor = selectedIconColor,
+                    focusedItemColor = focusedIconColor,
+                    focusRequester = focusRequester,
+                    defaultItemColor = unselectedIconColor,
                     onFocusChanged = onFocusChanged,
                     onItemClick = {
                         navController.navigate(Screen.MenuPage(item.route).createPath(
@@ -95,6 +112,10 @@ fun MenuItem(
     item: MenuItem,
     expanded: Boolean,
     selected: Boolean,
+    selectedItemColor: Color,
+    defaultItemColor: Color,
+    focusedItemColor: Color,
+    focusRequester: FocusRequester,
     onFocusChanged: (FocusState) -> Unit,
     onItemClick: () -> Unit
 ) {
@@ -111,6 +132,7 @@ fun MenuItem(
                     onItemClick()
                 }
             )
+            .focusRequester(focusRequester)
             .onFocusChanged {
                 focused = it.isFocused
                 onFocusChanged(it)
@@ -122,7 +144,7 @@ fun MenuItem(
         Icon(
             painter = painterResource(id = item.icon),
             contentDescription = item.title,
-            tint = if (focused || selected) Color.Red else Color.White
+            tint = if (focused) focusedItemColor else if (selected) selectedItemColor else defaultItemColor
         )
         AnimatedVisibility(
             visible = expanded,
@@ -130,7 +152,7 @@ fun MenuItem(
         ) {
             Text(
                 text = item.title,
-                color = if (focused || selected) Color.Red else Color.White,
+                color = if (focused) focusedItemColor else if (selected) selectedItemColor else defaultItemColor,
                 style = MaterialTheme.typography.h5
             )
         }
@@ -142,6 +164,10 @@ fun MenuItem(
 fun SideMenuComponentPreview() {
     SideMenuComponent(
         menuItems = SampleData.menuItems,
-        navController = rememberNavController()
+        navController = rememberNavController(),
+        backgroundColor = Color.Gray,
+        selectedIconColor = Color.Red,
+        unselectedIconColor = Color.Black,
+        focusedIconColor = Color.Red
     )
 }

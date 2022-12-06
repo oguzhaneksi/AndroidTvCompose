@@ -37,9 +37,9 @@ fun CardRowsScreen(
                             val visibleItemsInfo = lazyColumnState.layoutInfo.visibleItemsInfo
                             val visibleSet = visibleItemsInfo.map { it.index }.toSet()
                             if (index == visibleItemsInfo.last().index) {
-                                lazyColumnState.scrollToItem(index)
+                                lazyColumnState.animateScrollToItem(index)
                             } else if (visibleSet.contains(index) && index > 0) {
-                                lazyColumnState.scrollToItem(index - 1)
+                                lazyColumnState.animateScrollToItem(index - 1)
                             }
                         }
                     }
@@ -82,9 +82,9 @@ fun CardRow(
                                 val visibleItemsInfo = lazyRowState.layoutInfo.visibleItemsInfo
                                 val visibleSet = visibleItemsInfo.map { it.index }.toSet()
                                 if (index == visibleItemsInfo.last().index) {
-                                    lazyRowState.scrollToItem(index)
+                                    lazyRowState.animateScrollToItem(index)
                                 } else if (visibleSet.contains(index) && index > 0) {
-                                    lazyRowState.scrollToItem(index - 1)
+                                    lazyRowState.animateScrollToItem(index - 1)
                                 }
                             }
                         }
