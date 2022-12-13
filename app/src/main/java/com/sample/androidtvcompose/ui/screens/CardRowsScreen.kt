@@ -1,7 +1,9 @@
 package com.sample.androidtvcompose.ui.screens
 
 import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.LocalOverscrollConfiguration
 import androidx.compose.foundation.gestures.animateScrollBy
+import androidx.compose.foundation.gestures.scrollBy
 import androidx.compose.foundation.gestures.snapping.rememberSnapFlingBehavior
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.*
@@ -48,7 +50,7 @@ fun CardRowsScreen(
                 onFocusChanged = { state ->
                     if (state.hasFocus) {
                         scope.launch {
-                            lazyColumnState.scrollToItem(0)
+                            handleFocus(0, lazyColumnState)
                         }
                     }
                 }
@@ -62,7 +64,9 @@ fun CardRowsScreen(
                 items = row.second,
                 onFocusChanged = { state ->
                     if (state.hasFocus) {
-                        onFocusChanged(index + 1)
+                        scope.launch {
+                            handleFocus(index + 1, lazyColumnState)
+                        }
                     }
                 }
             )
@@ -100,14 +104,7 @@ fun CardRow(
                         onFocusChanged(focusState)
                         if (focusState.isFocused) {
                             scope.launch {
-                                val visibleItemsInfo = lazyRowState.layoutInfo.visibleItemsInfo
-                                val visibleSet = visibleItemsInfo.map { it.index }.toSet()
-                                if (index == visibleItemsInfo.last().index) {
-                                    lazyRowState.animateScrollBy((visibleItemsInfo.last().size - (lazyRowState.layoutInfo.viewportEndOffset - visibleItemsInfo.last().offset)).toFloat())
-                                }
-                                else if (index == visibleItemsInfo.first().index) {
-                                    lazyRowState.animateScrollBy((visibleItemsInfo.first().offset - lazyRowState.layoutInfo.viewportStartOffset).toFloat())
-                                }
+                                handleFocus(index, lazyRowState)
                             }
                         }
                     }
@@ -143,20 +140,31 @@ fun SliderRow(
                         onFocusChanged(focusState)
                         if (focusState.isFocused) {
                             scope.launch {
-                                val visibleItemsInfo = lazyRowState.layoutInfo.visibleItemsInfo
-                                val visibleSet = visibleItemsInfo.map { it.index }.toSet()
-                                if (index == visibleItemsInfo.last().index) {
-                                    lazyRowState.animateScrollBy((visibleItemsInfo.last().size - (lazyRowState.layoutInfo.viewportEndOffset - visibleItemsInfo.last().offset)).toFloat())
-                                }
-                                else if (index == visibleItemsInfo.first().index) {
-                                    lazyRowState.animateScrollBy((visibleItemsInfo.first().offset - lazyRowState.layoutInfo.viewportStartOffset).toFloat())
-                                }
+                                handleFocus(index, lazyRowState)
                             }
                         }
                     }
                 )
             }
         }
+    }
+}
+
+private suspend fun handleFocus(index: Int, state: LazyListState) {
+    val visibleItemsInfo = state.layoutInfo.visibleItemsInfo
+    val visibleSet = visibleItemsInfo.map { it.index }.toSet()
+    if (index == visibleItemsInfo.last().index) {
+        state.scrollBy((visibleItemsInfo.last().size - (state.layoutInfo.viewportEndOffset - visibleItemsInfo.last().offset)).toFloat())
+    }
+    else if (index == visibleItemsInfo.first().index) {
+        state.scrollBy((visibleItemsInfo.first().offset - state.layoutInfo.viewportStartOffset).toFloat())
+    }
+    else if (!visibleSet.contains(index) && index > visibleItemsInfo.last().index) {
+        val completelyVisibleItemCount = if (visibleItemsInfo.first().offset < 0) visibleSet.size - 1 else visibleSet.size
+        state.scrollToItem(index - completelyVisibleItemCount + 1)
+    }
+    else if (!visibleSet.contains(index) && index < visibleItemsInfo.first().index) {
+        state.scrollToItem(index)
     }
 }
 
